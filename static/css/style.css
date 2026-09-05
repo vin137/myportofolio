@@ -195,7 +195,7 @@ h1, .brand {
 }
 
 .section-block {
-    padding: 4.5rem 0 5rem;
+    padding: 1rem 0 1rem;
 }
 
 .section-title {
@@ -212,7 +212,7 @@ h1, .brand {
     margin-bottom: 2rem;
 
     width: 500px;
-    min-height: 150px;
+    min-height: 200px;
     padding: 1.5rem 0 0 2rem;
     text-align: left;
 
