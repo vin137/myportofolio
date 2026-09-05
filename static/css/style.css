@@ -193,3 +193,38 @@ h1, .brand {
         justify-content: flex-start;
     }
 }
+
+.section-block {
+    padding: 4.5rem 0 5rem;
+}
+
+.section-title {
+    font-family: "Space Grotesk", -apple-system, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    
+    display: inline-block;
+    background-color: var(--ink);
+    color: var(--paper); 
+    padding: 0.4rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+
+    width: 500px;
+    min-height: 150px;
+    padding: 1.5rem 0 0 2rem;
+    text-align: left;
+
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.experience-block{
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/static/img/pacil-lama.jpg');
+}
+
+.experience-box {
+    color: var(--text-muted);
+}
