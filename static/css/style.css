@@ -219,6 +219,18 @@ h1, .brand {
     background-size: cover;
     background-position: center;
     position: relative;
+
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.section-title:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.section-title:active {
+    transform: scale(0.98);
 }
 
 .experience-block{
