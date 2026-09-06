@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+html{
+    scroll-behavior: smooth;
+}
+
 :root {
     --ink: #1c1917;
     --paper: #faf6f0;
@@ -237,6 +241,61 @@ h1, .brand {
     background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/static/img/pacil-lama.jpg');
 }
 
-.experience-box {
+.experience-list {
+    display: block;
+    background-color: aliceblue;
+    border: 1.5px solid var(--ink);
+    border-radius: 5px;
+
+    width: 600px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.experience-list h3{
+    font-family: "Space Grotesk", -apple-system, sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+}
+
+.experience-list p{
+    font-family: -apple-system, sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
     color: var(--text-muted);
+}
+
+.date{
+    font-family: -apple-system, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted); 
+}
+
+.main-experience summary::-webkit-details-marker {
+    display: none;
+}
+.main-experience summary {
+    list-style: none;
+    outline: none;
+}
+
+.dropdown-container {
+    margin-top: 1rem;
+    animation: slideDown 0.4s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
