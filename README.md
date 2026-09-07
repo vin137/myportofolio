@@ -76,7 +76,7 @@ Ikuti langkah-langkah berikut untuk menjalankan proyek portofolio ini di lingkun
 ### AI Disclosure
 dalam proyek static web ini, saya menggunakan model gemini untuk membantu menyiapkan blueprint code html dan css. Namun, keterbatasan AI sangat dirasakan saat proses pembuatan static web ini.
 
-### bagian yang diabntu AI
+### bagian yang dibantu AI
 * membantu memperkenalkan beberapa fitur seperti `hover` atau `keyframes`
 * membantu memberikan referensi color palette yang cocok.
 * membantu dalam memperbaiki struktur code untuk mobile.
