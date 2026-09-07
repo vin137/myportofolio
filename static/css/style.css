@@ -196,6 +196,19 @@ h1, .brand {
     .social-links {
         justify-content: flex-start;
     }
+
+    .section-title{
+        width: 100%;
+        max-width: 100%;
+        font-size: 1.5rem;
+        min-height: 100px;
+    }
+
+    .experience-list{
+        width: 100%;
+        max-width: 100%;
+        padding: 1.25rem;
+    }
 }
 
 .section-block {
