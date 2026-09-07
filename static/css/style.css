@@ -209,6 +209,40 @@ h1, .brand {
         max-width: 100%;
         padding: 1.25rem;
     }
+
+    .grid-layout {
+        grid-template-columns: 1fr; 
+        gap: 2rem;
+        padding: 1.5rem;
+        min-height: auto;
+    }
+
+    .section-title {
+        width: 100% ;
+        max-width: 100%;
+        min-height: 140px;
+        font-size: 1.5rem;
+    }
+
+    .box-list {
+        width: 100%;
+        max-width: 100%;
+        padding: 1.25rem;
+    }
+
+    .decor-img-box img {
+        max-width: 180px;
+        margin: 0 auto;
+    }
+
+    .row-right {
+        align-items: flex-start;
+    }
+    
+    .text-right {
+        text-align: left;
+        padding: 1.5rem 0 1.5rem 2rem;
+    }
 }
 
 .section-block {
@@ -344,6 +378,14 @@ h1, .brand {
     grid-template-columns: 1fr 1fr;
     gap: 5rem;
     align-items: start; 
+
+    background-color: #e4f1ff;
+    border-radius: 12px;
+    margin-bottom: 2.5rem;
+    
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    padding: 2.5rem 2.5rem 2.5rem 2.5rem;
+    min-height: 300px; 
 }
 
 .decor-img-box {
@@ -354,7 +396,7 @@ h1, .brand {
 }
 
 .decor-img-box img {
-    max-width: 150px;
+    max-width: 180px;
     height: auto;
     animation: floatAnimation 3s ease-in-out infinite;
 }
