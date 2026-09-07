@@ -198,7 +198,9 @@ h1, .brand {
     }
 
     .grid-layout {
-        grid-template-columns: 1fr !important;
+        display: flex !important;
+        flex-direction: column !important; 
+        
         gap: 1.5rem !important;
         padding: 1.25rem !important;
         min-height: auto !important;
@@ -206,6 +208,10 @@ h1, .brand {
         max-width: 100% !important;
     }
 
+    .main-experience, .main-skills {
+        order: 1 !important;
+        width: 100% !important;
+    }
     .section-title {
         display: block !important;
         width: 100% !important;
@@ -228,7 +234,8 @@ h1, .brand {
         display: flex !important;
         justify-content: center !important;
         width: 100% !important;
-        margin: 1rem 0 !important;
+        margin: 1.5rem 0 0 0 !important;
+        order: 2 !important;
     }
 
     .decor-img-box img {
