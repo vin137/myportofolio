@@ -9,12 +9,12 @@ html{
 }
 
 :root {
-    --ink: #1c1917;
-    --paper: #faf6f0;
-    --accent: #d95d39;
-    --accent-dark: #a8442a;
-    --line: #e3d9c9;
-    --text-muted: #6b6459;
+    --ink: #0f172a;
+    --paper: #f8fafc;
+    --accent: #3b82f6;
+    --accent-dark: #1d4ed8;
+    --line: #e2e8f0;
+    --text-muted: #64748b;
     --radius: 4px;
 }
 
@@ -204,7 +204,7 @@ h1, .brand {
         min-height: 100px;
     }
 
-    .experience-list{
+    .box-list{
         width: 100%;
         max-width: 100%;
         padding: 1.25rem;
@@ -224,14 +224,12 @@ h1, .brand {
     display: inline-block;
     background-color: var(--ink);
     color: var(--paper); 
-    padding: 0.4rem 1rem;
     border-radius: 10px;
     margin-bottom: 2rem;
 
     width: 500px;
     min-height: 200px;
-    padding: 1.5rem 0 0 2rem;
-    text-align: left;
+    padding: 1.5rem 2rem;
 
     background-size: cover;
     background-position: center;
@@ -250,24 +248,55 @@ h1, .brand {
     transform: scale(0.98);
 }
 
-.experience-block{
+.experience-title{
+    text-align: left;
+    padding: 1.5rem 0 1.5rem 2rem;
+}
+
+.skills-title{
+    width: 500px;
+    min-height: 200px;
+    padding: 1.5rem 0 0 2rem;
+    text-align: right;
+}
+
+.row-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.text-left {
+    text-align: left;
+    padding: 1.5rem 0 1.5rem 2rem;
+}
+
+.text-right {
+    text-align: right;
+    padding: 1.5rem 2rem 1.5rem 0; 
+}
+
+.experience-img {
     background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/static/img/pacil-lama.jpg');
 }
 
-.experience-list {
+.skills-img{
+    background-image: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)),url('/static/img/rubot.jpeg');
+}
+
+.box-list {
     display: block;
     background-color: aliceblue;
     border: 1.5px solid var(--ink);
     border-radius: 5px;
 
-    width: 600px;
+    width: 500px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
-.experience-list h3{
+.box-list h3 {
     font-family: "Space Grotesk", -apple-system, sans-serif;
     font-size: 1.2rem;
     font-weight: 700;
@@ -275,24 +304,27 @@ h1, .brand {
     margin-bottom: 0.5rem;
 }
 
-.experience-list p{
+.box-list p {
     font-family: -apple-system, sans-serif;
     font-size: 1rem;
     font-weight: 500;
     color: var(--text-muted);
 }
 
-.date{
+.date {
     font-family: -apple-system, sans-serif;
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-muted); 
 }
 
-.main-experience summary::-webkit-details-marker {
+.main-experience summary::-webkit-details-marker,
+.main-skills summary::-webkit-details-marker {
     display: none;
 }
-.main-experience summary {
+
+.main-experience summary,
+.main-skills summary {
     list-style: none;
     outline: none;
 }
@@ -303,12 +335,6 @@ h1, .brand {
 }
 
 @keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-15px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-15px); }
+    to { opacity: 1; transform: translateY(0); }
 }
