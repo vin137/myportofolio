@@ -89,12 +89,15 @@ dalam proyek static web ini, saya menggunakan model gemini untuk membantu menyia
 ### Tugas 2
 ### 1.
 > **pertanyaan:** Jelaskan alur yang terjadi ketika pengguna membuka halaman portofolio baru, mulai dari permintaan yang diterima proyek hingga data ditampilkan pada browser. Dalam jawabanmu, jelaskan peran urls.py proyek, urls.py aplikasi, view, model, dan template?
+
 ketika pengguna memasukan url portofolio yang ingin dituju, `urls.py` proyek akan menerima dan membaca jalur utama url yang diberikan sehingga dapat mengarahkannya ke file aplikasi. selanjutnya `urls.py` aplikasi akan mencocokan sisa url yang spesifik (seperti: `/award`) dan meneruskannya ke view yang spesifik. `views.py` akan menerima request dan mengambil data dari model dan membungkusnya sebagia dictionory untuk dikemas bersama template melalui fungsi `render()`. `models.py` bertanggung jawab sebagai perantara database dan template HTML merupakan struktur web mentah yang kemudain akan diisi sesuai context berdasarkan tahap-tahap sebelumnya.
 
 > **pertanyaan:** Mengapa data untuk bagian portofolio baru sebaiknya disimpan pada model dan tidak ditulis langsung di dalam template? Jelaskan dampaknya terhadap kemudahan pemeliharaan dan pengembangan aplikasi?
+
 menyimpan data pada model jauh lebih baik dari pada hard-code karena alasan maintainability (memudahkan manipulasi data), scalibility (satu kode HTML yang diterapkan pada ratusan data di model merupakan implementasi yang jauh lebih dinamis) dan kerapihan code.
 
 > **pertanyaan:** Apa perbedaan fungsi makemigrations dan migrate pada Django? Berikan contoh perubahan model yang mengharuskanmu menjalankan kedua perintah tersebut?
+
 * makemigrations: berfungsi untuk membuat blueprint struktur model yang baru berdasarkan perubahan yang ada di `models.py`
 * migrate: mengeksekusi berkas yang dibuat oleh makemigrations
 * Contoh: saat penambahan class award yang baru pada `models.py` mengharuskan kedua perintah ini dieksekusi untuk menanggapi perubahan struktur model tersebut.
