@@ -2,6 +2,7 @@ from django.shortcuts import render
 
 from main.models import Experience
 
+from main.models import Award
 
 def show_main(request):
     context = {
@@ -23,3 +24,10 @@ def show_experience(request):
         "experience_list": Experience.objects.all(),
     }
     return render(request, "experience.html", context)
+
+def show_award(request):
+    awards = Award.objects.all()
+    context = {
+        'award_list':awards
+    }
+    return render(request,'award.html',context)

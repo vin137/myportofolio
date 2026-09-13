@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-
+from main.models import Award
 from main.models import Experience
 
 
@@ -56,3 +56,23 @@ class MainTest(TestCase):
         self.assertFalse(self.experience.is_ongoing)
         self.assertContains(response, "Selesai")
         self.assertNotContains(response, "Sedang berlangsung")
+
+    
+    def test_award_page_url_and_template(self):
+        response = self.client.get(reverse('main:show_award'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'award.html')
+
+    def test_award_page_empty_condition(self):
+        response = self.client.get(reverse('main:show_award'))
+        self.assertContains(response, "Belum ada award yang ditambahkan.")
+
+    def test_award_page_with_data(self):
+        Award.objects.create(
+            title="Juara 1 Hackathon UI 2026", 
+            description="Memenangkan kompetisi coding tingkat nasional."
+        )
+        response = self.client.get(reverse('main:show_award'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Juara 1 Hackathon UI 2026")
+        self.assertContains(response, "Memenangkan kompetisi coding tingkat nasional.")
