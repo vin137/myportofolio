@@ -1,8 +1,22 @@
-from django.shortcuts import render
-
+import json
+from django.core import serializers
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
 from main.models import Experience
-
 from main.models import Award
+from main.forms import AwardForm
+
+def get_awards_json(request):
+    title_query = request.GET.get("title", "").strip()
+    awards = Award.objects.all()
+
+    if title_query:
+        awards = awards.filter(title__icontains=title_query)
+
+    awards_json = serializers.serialize("json", awards)
+    return HttpResponse(awards_json, content_type="application/json")
+
 
 def show_main(request):
     context = {
@@ -26,8 +40,42 @@ def show_experience(request):
     return render(request, "experience.html", context)
 
 def show_award(request):
-    awards = Award.objects.all()
+
+    json_response = get_awards_json(request)
+    
+    json_data = json_response.content.decode('utf-8')
+    
+    parsed_data = serializers.deserialize("json", json_data)
+    
+    awards = [instance.object for instance in parsed_data]
+    
     context = {
-        'award_list':awards
+        "name": "Vincent",
+        "awards": awards,
     }
-    return render(request,'award.html',context)
+    return render(request, "award.html", context)
+
+
+def create_award(request):
+    form = AwardForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Award baru berhasil ditambahkan!")
+        return redirect("main:show_award")
+
+    context = {
+        "name": "Vincent",
+        "form": form,
+    }
+    return render(request, "award_form.html", context)
+
+def delete_award(request, award_id):
+    award = get_object_or_404(Award, pk=award_id)
+
+    if request.method == "POST":
+        award.delete()
+        messages.success(request, "Award berhasil dihapus!")
+        return redirect("main:show_award")
+
+    return redirect("main:show_award")
