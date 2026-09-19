@@ -76,3 +76,25 @@ class MainTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Juara 1 Hackathon UI 2026")
         self.assertContains(response, "Memenangkan kompetisi coding tingkat nasional.")
+
+    def test_edit_award_functionality(self):
+        award = Award.objects.create(
+            title="Award Lama", 
+            description="Deskripsi Lama"
+        )
+        response = self.client.post(
+            reverse('main:edit_award', args=[award.id]), 
+            {'title': 'Award Baru', 'description': 'Deskripsi Baru'}
+        )
+        self.assertRedirects(response, reverse('main:show_award'))
+        award.refresh_from_db()
+        self.assertEqual(award.title, "Award Baru")
+
+    def test_delete_award_functionality(self):
+        award = Award.objects.create(
+            title="Award Mau Dihapus", 
+            description="Deskripsi"
+        )
+        response = self.client.post(reverse('main:delete_award', args=[award.id]))
+        self.assertRedirects(response, reverse('main:show_award'))
+        self.assertFalse(Award.objects.filter(id=award.id).exists())

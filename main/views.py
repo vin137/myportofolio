@@ -79,3 +79,18 @@ def delete_award(request, award_id):
         return redirect("main:show_award")
 
     return redirect("main:show_award")
+
+def edit_award(request,award_id):
+    award = get_object_or_404(Award,pk = award_id)
+    form = AwardForm(request.POST or None,instance=award)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("main:show_award")
+
+    context = {
+        "name": "Vincent",
+        "form": form,
+        "award" : award
+    }
+    return render(request, "award_form.html", context)

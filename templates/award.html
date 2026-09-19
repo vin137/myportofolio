@@ -34,6 +34,9 @@
                             <p class="experience-description">{{ award.description }}</p>
                             
                             <div class="project-card-actions">
+                                <a href="{% url 'main:edit_award' award.id %}" class="project-actions">
+                                    Edit Award
+                                </a>
                                 <div class="project-actions">
                                     {% include "components/award_delete_modal.html" with award=award %}
                                 </div>
