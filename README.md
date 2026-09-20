@@ -113,3 +113,27 @@ dalam tugas 2 static web ini, saya menggunakan model gemini untuk membantu menca
 
 ### Analisi keterbatasan AI dan perbaikan manual
 * AI tidak dapat dengan mudah menelaah code jika tidak diberikan context yang cukup sehingga diperlukan pemahaman yang kuat agar dapat memberikan instruksi yang tepat dan benar.
+
+### Tugas 3
+### 1.
+> **pertanyaan:** Jelaskan mengapa kita menggunakan ModelForm pada Django alih-alih membuat form HTML secara manual. Selain itu, jelaskan pula mengapa kita diwajibkan menambahkan {% csrf_token %} pada form tersebut!
+* `ModelForm` django memberikan manfaat efisiensi dibanding membuat form HTML manual karena secara otomatis membuat form berdasarkan struktur database yang sudah dibuat. 
+* `{% csrf_token %}` dibutuhkan karena alasan keamanan untuk melindungi dari serangan csrf yang berpotensi untuk mengirim data atau perintah yang berbahaya.
+
+### 2.
+> **pertanyaan:** Pada Tutorial 03, kita membahas format data JSON dan XML. Mengapa JSON lebih disukai dalam pengembangan aplikasi web modern dibandingkan XML?
+Struktur JSON lebih disukai dari pada XML karena alssan keterbacaan, efisiensi, dan juga dibackup langsung oleh bahasa javascript. sintaks JSON yang lebih bersih memudahkan manusia untuk membaca dan menerima informasi dari struktur JSON. Implementasi key-value JSON memberikan kecepatan pemrograman karena tidak memakai sistem tag seperti XML yang redundant dan tidak efisien.
+
+### 3.
+> **pertanyaan:** Jelaskan alur yang terjadi saat kamu menggunakan fungsi view untuk mengembalikan data portofoliomu dalam bentuk JSON. Mengapa kita perlu melakukan proses serialization pada model Django sebelum datanya dikembalikan?
+1. User memberikan perintah URL yang ingin dituju (misal `/award`)
+2. File `urls.py` mengarahkan perintah ke fungsi view yang bertugas
+3. Di dalam view, Django memanggil model menggunakan perintah ORM untuk menarik data dari database.
+4. Data objek dari database python diubah menjadi format string JSON
+5. Hasil teks JSON dibungkus ke dalam objek dan dikirm kembali ke browser
+
+### AI Disclosure
+
+### bagian yang dibantu AI
+
+### Analisi keterbatasan AI dan perbaikan manual
