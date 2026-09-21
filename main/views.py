@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from main.models import Experience
 from main.models import Award
-from main.forms import AwardForm
+from main.forms import AwardForm, ExperienceForm
 
 def get_awards_json(request):
     title_query = request.GET.get("title", "").strip()
@@ -38,6 +38,41 @@ def show_experience(request):
         "experience_list": Experience.objects.all(),
     }
     return render(request, "experience.html", context)
+
+def create_experience(request):
+    form = ExperienceForm(request.POST or None)
+    if(request.method == "POST" and form.is_valid()):
+        form.save()
+        messages.success(request, "Experience baru berhasil disimpan")
+        return redirect("main:show_experience")
+    context = {
+        "name": "Vincent",
+        "form": form,
+    }
+    return render(request, "experience_form.html", context)    
+
+def delete_experience(request,experience_id):
+    experience = get_object_or_404(Experience,pk=experience_id)
+    if request.method == "POST":
+        experience.delete()
+        messages.success(request,"Experience berhasil dihapus")
+    return redirect("main:show_experience")
+
+def edit_experience(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+    form = ExperienceForm(request.POST or None, instance=experience)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Experience berhasil diperbarui!")
+        return redirect("main:show_experience")
+
+    context = {
+        "name": "Vincent",
+        "form": form,
+        "experience": experience
+    }
+    return render(request, "experience_form.html", context)
 
 def show_award(request):
 
