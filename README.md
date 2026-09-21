@@ -133,7 +133,11 @@ Struktur JSON lebih disukai dari pada XML karena alssan keterbacaan, efisiensi, 
 5. Hasil teks JSON dibungkus ke dalam objek dan dikirm kembali ke browser
 
 ### AI Disclosure
+Dalam tugas 3 ini, saya menggunakan AI untuk membantu dalam menemukan bug, error, dan membuat code yang repetitif seperti unit tes dan juga delete modal. Lebih dari itu, pengerjaan dilakukan secara mandiri dengan dibantu petunjuk tutorial dan materi di dalam kelas.
 
 ### bagian yang dibantu AI
+* menelaah dan menganalisis code saat terjadi error untuk mencari kesalahan dengan lebih efisien.
+* membuat code test dan modal yang repetitif.
 
 ### Analisi keterbatasan AI dan perbaikan manual
+* Kelemahan AI saat ini terleetak pada kapasitas memorinya yang sangat terbatas sehingga tidak bisa serta merta meniru kode 100% dna dibuthkannya penyesuaian secara manual seperti nama path urls, variable object, fungsi mengambil untuk JSON, dll.
