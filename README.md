@@ -141,3 +141,13 @@ Dalam tugas 3 ini, saya menggunakan AI untuk membantu dalam menemukan bug, error
 
 ### Analisi keterbatasan AI dan perbaikan manual
 * Kelemahan AI saat ini terleetak pada kapasitas memorinya yang sangat terbatas sehingga tidak bisa serta merta meniru kode 100% dna dibuthkannya penyesuaian secara manual seperti nama path urls, variable object, fungsi mengambil untuk JSON, dll.
+
+### Tugas 4
+### AI Disclosure
+Dalam tugas 4 ini, saya menggunakan AI untuk membantu dan menelaah error, bug, dan code yang rawan. Lebih dari itu, pengerjaan dilakukan secara mandiri dengan dibantu petunjuk tutorial dan materi di dalam kelas.
+
+### bagian yang dibantu AI
+* menelaah error dan bug yang terjadi ketika melakukan `runserver` atau `migrate`
+
+### Analisi keterbatasan AI dan perbaikan manual
+* Kelemahan AI saat ini mirip seperti sebelumnya dimana AI tidak bisa bekerja secara efketif untuk ukuran project yang besar sehingga masih dibutuhkan pemahaman secara mendalam jika ingin AI dirasa terbantu dan berguna.
