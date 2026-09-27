@@ -9,9 +9,11 @@
                 <p class="section-kicker">Some of my achievements</p>
                 <div class="project-header">
                     <h1>Awards</h1>
+                    {% if user.is_superuser %}
                     <a href="{% url 'main:create_award' %}" class="button project-add-button">
                         <span aria-hidden="true">+</span> Tambah Award
                     </a>
+                    {% endif %}
                 </div>
                 
                 <form method="get" action="{% url 'main:show_award' %}" class="project-search">
@@ -38,7 +40,10 @@
                                     Edit Award
                                 </a>
                                 <div class="project-actions">
-                                    {% include "components/award_delete_modal.html" with award=award %}
+                                    {% include "components/award_star.html" with award=award %}
+                                    {% if user.is_superuser %}
+                                        {% include "components/award_delete_modal.html" with award=award %}
+                                    {% endif %}
                                 </div>
                             </div>
                         </article>
