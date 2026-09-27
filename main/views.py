@@ -28,12 +28,13 @@ def get_awards_json(request):
 def show_main(request):
     last_login = request.COOKIES.get('last_login', 'Belum ada sesi login / Cookie tidak ditemukan')
     context = {
-        "name": "Burhan",
-        "npm": "2206000000",
+        "name": "Vincent",
+        "npm": "2506618540",
         "study_program": "S1 Ilmu Komputer",
         "bio": (
-            "Mahasiswa Ilmu Komputer Universitas Indonesia yang tertarik "
-            "pada pengembangan perangkat lunak dan pendidikan."
+            "CS student at Universitas Indonesia."""
+            "Majoring in Computer Science."
+            "Interested in Competitive Programming, Artificial Intelligence, and Robotics."
         ),
         "last_login": last_login,
     }
@@ -41,9 +42,11 @@ def show_main(request):
 
 
 def show_experience(request):
+    is_editor = request.user.is_authenticated and request.user.groups.filter(name='Editor').exists()
     context = {
         "name": "Vincent",
         "experience_list": Experience.objects.all(),
+        "is_editor" : is_editor,
     }
     return render(request, "experience.html", context)
 
@@ -74,7 +77,12 @@ def delete_experience(request,experience_id):
         messages.success(request,"Experience berhasil dihapus")
     return redirect("main:show_experience")
 
+@login_required(login_url="/login/")
 def edit_experience(request, experience_id):
+    is_editor = request.user.groups.filter(name='Editor').exists()
+    if not (request.user.is_superuser or is_editor):
+        raise PermissionDenied
+
     experience = get_object_or_404(Experience, pk=experience_id)
     form = ExperienceForm(request.POST or None, instance=experience)
 
@@ -103,6 +111,7 @@ def toggle_star_experience(request, experience_id):
     return redirect("main:show_experience")
 
 def show_award(request):
+    is_editor = request.user.is_authenticated and request.user.groups.filter(name='Editor').exists()
 
     json_response = get_awards_json(request)
     
@@ -115,6 +124,7 @@ def show_award(request):
     context = {
         "name": "Vincent",
         "awards": awards,
+        "is_editor" : is_editor
     }
     return render(request, "award.html", context)
 
@@ -150,7 +160,12 @@ def delete_award(request, award_id):
 
     return redirect("main:show_award")
 
+@login_required(login_url="/login/") 
 def edit_award(request,award_id):
+    is_editor = request.user.groups.filter(name='Editor').exists()
+    if not (request.user.is_superuser or is_editor):
+        raise PermissionDenied
+
     award = get_object_or_404(Award,pk = award_id)
     form = AwardForm(request.POST or None,instance=award)
 
