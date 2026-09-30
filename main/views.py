@@ -1,6 +1,6 @@
 import json
 from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from main.models import Experience
@@ -13,16 +13,36 @@ from django.shortcuts import redirect, render
 import datetime
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.views.decorators.http import require_POST
+
 
 def get_awards_json(request):
     title_query = request.GET.get("title", "").strip()
-    awards = Award.objects.all()
+    awards = Award.objects.prefetch_related('starred_by').all()
 
     if title_query:
         awards = awards.filter(title__icontains=title_query)
 
-    awards_json = serializers.serialize("json", awards, use_natural_foreign_keys=True )
-    return HttpResponse(awards_json, content_type="application/json")
+    # Konstruksi data JSON secara manual agar bisa menyisipkan logika Star
+    data = []
+    for award in awards:
+        starred_users = award.starred_by.all()
+        is_starred = request.user in starred_users if request.user.is_authenticated else False
+        starred_by_names = ", ".join([u.username for u in starred_users])
+
+        data.append({
+            "pk": str(award.id),
+            "fields": {
+                "title": award.title,
+                "description": award.description,
+                "date_given" : award.date_given,
+                "star_count": starred_users.count(),
+                "is_starred": is_starred,
+                "starred_by_names": starred_by_names,
+            }
+        })
+
+    return JsonResponse(data, safe=False)
 
 
 def show_main(request):
@@ -111,20 +131,12 @@ def toggle_star_experience(request, experience_id):
     return redirect("main:show_experience")
 
 def show_award(request):
-    is_editor = request.user.is_authenticated and request.user.groups.filter(name='Editor').exists()
+    title_query = request.GET.get("title", "").strip()
 
-    json_response = get_awards_json(request)
-    
-    json_data = json_response.content.decode('utf-8')
-    
-    parsed_data = serializers.deserialize("json", json_data)
-    
-    awards = [instance.object for instance in parsed_data]
-    
     context = {
         "name": "Vincent",
-        "awards": awards,
-        "is_editor" : is_editor
+        "title_query": title_query,
+        "form":AwardForm(),
     }
     return render(request, "award.html", context)
 
@@ -227,3 +239,24 @@ def logout_user(request):
     response = redirect("main:show_main")
     response.delete_cookie('last_login')
     return response
+
+@require_POST
+def create_award_ajax(request):
+    # Validasi otorisasi server-side
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan award."},
+            status=403,
+        )
+
+    # Memanfaatkan kembali AwardForm dari Tugas 3 & 4
+    form = AwardForm(request.POST)
+    if form.is_valid():
+        award = form.save()
+        return JsonResponse(
+            {"message": "Award berhasil ditambahkan.", "pk": str(award.id)},
+            status=201,
+        )
+
+    # Mengembalikan struktur error jika tidak valid
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)

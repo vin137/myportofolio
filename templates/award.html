@@ -10,14 +10,15 @@
                 <div class="project-header">
                     <h1>Awards</h1>
                     {% if user.is_superuser %}
-                    <a href="{% url 'main:create_award' %}" class="button project-add-button">
+                    <a href="{% url 'main:create_award' %}" class="button project-add-button " popovertarget="add-project-modal">
                         <span aria-hidden="true">+</span> Tambah Award
                     </a>
                     {% endif %}
                 </div>
                 
-                <form method="get" action="{% url 'main:show_award' %}" class="project-search">
+                <form id="project-search-form" class="project-search">
                     <input type="search"
+                           id="search-input"
                            name="title"
                            value="{{ title_query }}"
                            placeholder="Cari berdasarkan nama award"
@@ -25,6 +26,24 @@
                            aria-label="Cari berdasarkan nama award">
                     <button type="submit" class="button">Cari</button>
                 </form>
+
+                <!-- Loading State -->
+                <div id="loading" class="empty-state hide">
+                    <p>Memuat awards...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="error" class="empty-state hide">
+                    <p>Gagal memuat data awards. Silakan coba lagi.</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty" class="empty-state hide">
+                    <p>Belum ada award yang ditambahkan atau ditemukan.</p>
+                </div>
+
+                <!-- Project Grid -->
+                <div id="grid" class="experience-grid project-grid hide"></div>
 
                 <div class="experience-grid project-grid">
                     {% for award in awards %}
@@ -57,5 +76,237 @@
                 </div>
             </div>
         </section>
+        <button class="button button-secondary" onclick="showToast('Notifikasi Sistem', 'Project berhasil dimuat dengan baik!', 'success')">
+            Test Toast Notifikasi
+        </button>
     </main>
+{% if user.is_superuser %}
+    {% include "components/award_form_modal.html" %}
+{% endif %}
+
+
+    <script>
+    // Konfigurasi
+        // Inisialisasi Endpoint dan Status Hak Akses dari Django Backend
+    const BASE_AWARDS_ENDPOINT = "{% url 'main:get_awards_json' %}";
+    const CREATE_AWARD_ENDPOINT = "{% url 'main:create_award_ajax' %}";
+    const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
+    const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
+    
+    let awardsAbortController;
+
+    // Selektor Elemen DOM Halaman Daftar Award
+    const loadingState = document.getElementById('loading');
+    const errorState = document.getElementById('error');
+    const emptyState = document.getElementById('empty');
+    const gridContainer = document.getElementById('grid');
+    const searchForm = document.getElementById('project-search-form'); // Sesuaikan dengan ID form search-mu
+    const searchInput = document.getElementById('search-input');
+    const awardForm = document.getElementById('award-form'); // Mengarah ke id di dalam award_form_modal.html
+
+    // Fungsi Pengamanan: Mengubah karakter khusus HTML menjadi entity teks agar aman dari Stored XSS
+    function escapeHtml(string) {
+        if (!string) return '';
+        return String(string)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // Mengatur visibilitas status loading, empty state, error, atau kontainer data
+    function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
+        if (loadingState) loadingState.classList.toggle('hide', !showLoading);
+        if (errorState) errorState.classList.toggle('hide', !showError);
+        if (emptyState) emptyState.classList.toggle('hide', !showEmpty);
+        if (gridContainer) gridContainer.classList.toggle('hide', !showGrid);
+    }
+
+    // Merakit Elemen HTML Card Award Secara Dinamis & Aman (XSS Clean)
+    function buildAwardCardElement(item) {
+        const award = item.fields;
+        const awardId = item.pk;
+
+        const articleElement = document.createElement('article');
+        articleElement.className = 'experience-card';
+
+        // Trik Pengalihan Dummy UUID agar rute tombol edit, delete, dan star mengarah ke target ID asli
+        const editUrl = "{% url 'main:edit_award' '00000000-0000-0000-0000-000000000000' %}"
+            .replace('00000000-0000-0000-0000-000000000000', awardId);
+        const deleteUrl = "{% url 'main:delete_award' '00000000-0000-0000-0000-000000000000' %}"
+            .replace('00000000-0000-0000-0000-000000000000', awardId);
+        const starUrl = "{% url 'main:toggle_star_award' '00000000-0000-0000-0000-000000000000' %}"
+            .replace('00000000-0000-0000-0000-000000000000', awardId);
+
+        // Otorisasi Tombol Edit (Hanya untuk Superuser dan Editor)
+        const editHtml = (IS_SUPERUSER || IS_EDITOR)
+            ? `<a href="${editUrl}" class="button button-secondary">Edit</a>`
+            : '';
+
+        // Otorisasi Tombol Hapus (Hanya eksklusif untuk Superuser)
+        const deleteHtml = IS_SUPERUSER 
+            ? `<form method="post" action="${deleteUrl}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="button button-danger" onclick="return confirm('Yakin ingin menghapus award ini?');">Hapus</button>
+            </form>`
+            : '';
+
+        // Format Kondisi Kelas dan Teks Interaktif Fitur Star
+        const isStarredClass = award.is_starred ? " is-starred" : "";
+        const starText = award.is_starred ? "Unstar" : "Star";
+        const starTitle = award.star_count > 0 
+            ? `Dibintangi oleh ${escapeHtml(award.starred_by_names)}` 
+            : "Jadilah yang pertama memberi star";
+
+        // Blok Penyusunan Kerangka Komponen HTML Kartu Portofolio
+        const completeCardHtml = `
+            <span class="experience-category">${escapeHtml(award.date_given)}</span>
+            <h2>${escapeHtml(award.title)}</h2>
+            <p class="experience-description">${escapeHtml(award.description)}</p>
+            <div class="project-card-actions">
+                <div class="project-actions">
+                    ${editHtml}
+                    
+                    <form method="post" action="${starUrl}" class="star-form">
+                        {% csrf_token %}
+                        <button type="submit" 
+                                class="button button-star${isStarredClass}"
+                                title="${starTitle}">
+                            <span aria-hidden="true">★</span>
+                            ${starText}
+                            <span class="star-count">${award.star_count || 0}</span>
+                        </button>
+                    </form>
+
+                    ${deleteHtml}
+                </div>
+            </div>
+        `;
+
+        articleElement.innerHTML = completeCardHtml;
+        return articleElement;
+    }
+
+    // Mengambil data utama Award via AJAX asynchronous
+    async function fetchAwards(searchQuery = "") {
+        if (awardsAbortController) awardsAbortController.abort();
+        awardsAbortController = new AbortController();
+
+        try {
+            displayPageSection({ showLoading: true });
+            
+            const url = searchQuery ? `${BASE_AWARDS_ENDPOINT}?title=${encodeURIComponent(searchQuery)}` : BASE_AWARDS_ENDPOINT;
+            
+            const response = await fetch(url, {
+                headers: { 'Accept': 'application/json' },
+                signal: awardsAbortController.signal,
+            });
+
+            if (!response.ok) throw new Error('Failed to fetch data');
+
+            const awardData = await response.json();
+
+            if (awardData.length === 0) {
+                displayPageSection({ showEmpty: true });
+            } else {
+                if (gridContainer) {
+                    gridContainer.innerHTML = '';
+                    awardData.forEach(item => {
+                        gridContainer.appendChild(buildAwardCardElement(item));
+                    });
+                }
+                displayPageSection({ showGrid: true });
+            }
+        } catch (error) {
+            if (error.name === 'AbortError') return;
+            console.error('Error loading awards:', error);
+            displayPageSection({ showError: true });
+        }
+    }
+
+    // --- MANAJEMEN EVENT PENCARIAN (DEBOUNCE SEARCH) ---
+    const SEARCH_DEBOUNCE_DELAY = 300;
+    let searchDebounceTimer;
+
+    function triggerSearch() {
+        if (searchInput) fetchAwards(searchInput.value.trim());
+    }
+
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            triggerSearch();
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", function() {
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(triggerSearch, SEARCH_DEBOUNCE_DELAY);
+        });
+    }
+
+    // --- OPERASI TAMBAH DATA VIA AJAX (POST METHOD) ---
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function closeAwardModal() {
+        const modal = document.getElementById("add-award-modal");
+        if (modal && modal.hidePopover) modal.hidePopover();
+    }
+
+    async function addAward(event) {
+        event.preventDefault();
+
+        const submitButton = awardForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+
+        try {
+            const response = await fetch(CREATE_AWARD_ENDPOINT, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                body: new FormData(awardForm),
+            });
+            const result = await response.json().catch(() => ({}));
+
+            if (response.ok) {
+                awardForm.reset();
+                closeAwardModal();
+                alert('Award baru berhasil ditambahkan!'); // Sukses feedback
+                triggerSearch(); // Refresh list otomatis tanpa reload
+            } else {
+                const errorMessages = result.errors
+                    ? Object.values(result.errors).flat().map(error => error.message)
+                    : [result.message || `Terjadi kesalahan (status ${response.status}).`];
+                alert('Gagal menambahkan award:\n' + errorMessages.join('\n'));
+            }
+        } catch (error) {
+            console.error('Error adding award:', error);
+            alert('Gagal menambahkan award: Tidak dapat terhubung ke server.');
+        } finally {
+            submitButton.disabled = false;
+        }
+    }
+
+    if (awardForm) {
+        awardForm.addEventListener('submit', addAward);
+    }
+
+    // Inisialisasi awal saat halaman dibuka pertama kali
+    triggerSearch();
+
+    </script>
 {% endblock content %}

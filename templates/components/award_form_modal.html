@@ -1,0 +1,48 @@
+<div id="add-award-modal"
+     class="project-form-modal"
+     popover="auto"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="add-award-modal-title">
+    <button type="button"
+            class="project-form-modal__backdrop"
+            popovertarget="add-award-modal"
+            popovertargetaction="hide"
+            aria-label="Tutup form tambah award"></button>
+
+    <div class="project-form-modal__content">
+        <button type="button"
+                class="project-form-modal__close"
+                popovertarget="add-award-modal"
+                popovertargetaction="hide"
+                aria-label="Tutup form tambah award">×</button>
+
+        <!-- 1. Ganti judul modal -->
+        <h2 id="add-award-modal-title">Tambah Award Baru</h2>
+        
+        <!-- 2. Ubah id form dan action URL ke create_award -->
+        <form id="award-form"
+              method="post"
+              action="{% url 'main:create_award' %}"
+              class="project-form">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% for error in field.errors %}
+                        <p class="form-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <div class="project-form-modal__actions">
+                <button type="button"
+                        class="button button-secondary"
+                        popovertarget="add-award-modal"
+                        popovertargetaction="hide">Batal</button>
+                <!-- 3. Ganti teks tombol submit -->
+                <button type="submit" class="button">Tambah Award</button>
+            </div>
+        </form>
+    </div>
+</div>
