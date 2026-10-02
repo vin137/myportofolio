@@ -26,5 +26,9 @@ urlpatterns = [
         "experience/<uuid:experience_id>/star/",
         toggle_star_experience,
         name="toggle_star_experience",
-    ),
+    ), 
+    path('api/awards/', get_awards_json, name='get_awards_json'),
+    path('award/add-ajax/', create_award_ajax, name='create_award_ajax'),
+    path("api/experiences/", get_experiences_json, name="get_experiences_json"),
+    path("experience/add-ajax/", create_experience_ajax, name="create_experience_ajax")
 ]

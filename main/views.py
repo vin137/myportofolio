@@ -63,10 +63,14 @@ def show_main(request):
 
 def show_experience(request):
     is_editor = request.user.is_authenticated and request.user.groups.filter(name='Editor').exists()
+    
+    form = ExperienceForm()
+    
     context = {
         "name": "Vincent",
         "experience_list": Experience.objects.all(),
-        "is_editor" : is_editor,
+        "is_editor": is_editor,
+        "form": form, # 3. WAJIB TITIPKAN VARIABEL FORM INI KE HTML
     }
     return render(request, "experience.html", context)
 
@@ -259,4 +263,32 @@ def create_award_ajax(request):
         )
 
     # Mengembalikan struktur error jika tidak valid
+    return JsonResponse({"errors": form.errors.get_json_data()}, status=400)
+
+def get_experiences_json(request):
+    title_query = request.GET.get("title", "").strip()
+    experiences = Experience.objects.all()
+
+    if title_query:
+        experiences = experiences.filter(title__icontains=title_query)
+
+    experiences_json = serializers.serialize("json", experiences, use_natural_foreign_keys=True)
+    return HttpResponse(experiences_json, content_type="application/json")
+
+@require_POST
+def create_experience_ajax(request):
+    if not request.user.is_superuser:
+        return JsonResponse(
+            {"message": "Hanya pemilik portofolio yang dapat menambahkan proyek."},
+            status=403,
+        )
+
+    form = ExperienceForm(request.POST)
+    if form.is_valid():
+        experience = form.save()
+        return JsonResponse(
+            {"message": "Experience berhasil ditambahkan.", "pk": str(experience.id)},
+            status=201,
+        )
+
     return JsonResponse({"errors": form.errors.get_json_data()}, status=400)

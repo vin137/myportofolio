@@ -1,5 +1,6 @@
 from django.forms import ModelForm, Select, TextInput, Textarea, DateInput, URLInput 
 from main.models import Award, Experience
+from django.utils.html import strip_tags
 
 class AwardForm(ModelForm):
     class Meta:
@@ -35,7 +36,7 @@ class AwardForm(ModelForm):
                 }
             ),
         }
-        
+
     def clean_title(self):
         title = strip_tags(self.cleaned_data["title"]).strip()
         if not title:
@@ -98,3 +99,11 @@ class ExperienceForm(ModelForm):
                 }
             ),
         }
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("Nama experience tidak boleh hanya berisi tag HTML.")
+        return title
+
+    def clean_description(self):
+        return strip_tags(self.cleaned_data["description"]).strip()
