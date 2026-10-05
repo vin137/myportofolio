@@ -151,3 +151,28 @@ Dalam tugas 4 ini, saya menggunakan AI untuk membantu dan menelaah error, bug, d
 
 ### Analisi keterbatasan AI dan perbaikan manual
 * Kelemahan AI saat ini mirip seperti sebelumnya dimana AI tidak bisa bekerja secara efketif untuk ukuran project yang besar sehingga masih dibutuhkan pemahaman secara mendalam jika ingin AI dirasa terbantu dan berguna.
+
+### Tugas 5
+
+### 1.
+> **pertanyaan:** Jelaskan apa itu debouncing dan mengapa teknik ini penting diterapkan pada fitur pencarian yang menggunakan AJAX!
+Debouncing adalah teknik pemrograman yang menunda eksekusi sebuah program sampai pengguna berhenti melakukan aktivitas berdasarkan jeda tertetnu. hal ini penting dalam penerapan fitur pencarian AJAX karena tanpa debouncing permintaan akan dieksekusi langsung meski tidak terlalu perlu.
+
+### 2.
+> **pertanyaan:** Jelaskan fungsi dari penggunaan `await` ketika kita menggunakan `fetch()`! Apa yang akan terjadi jika kita tidak menggunakan `await`?
+`await` digunakan untuk menunda eksekusi baris berikutnya samapi proses pemanggilan data dari `fetch` selesai. tanpa await, proses akan menghasilkan error seperti `TypeError` karena membaca data yang bukan merupakan data respon asli.
+
+### 3.
+> **pertanyaan:** Jelaskan apa itu serangan XSS (Cross-Site Scripting) dan mengapa data yang ditampilkan melalui AJAX/JavaScript lebih rentan terhadap serangan ini daripada data yang ditampilkan langsung melalui template Django!
+XSS adalah ketika penyerang mencoba menyerang keamanan web dengan menyisipkan skrip berbahaya ke dalam situs web yang terpercaya sehingga dapat dieksekusi oleh browser milik user lain. AJAX/JavaScript lebih rentan terhadap serangan ini karena sistemnya sangat cocok dengan XSS yang langsung menyerang si sisi client sedanagn skrip AJAX/Javascript berjalan langsung di sisi client.
+
+
+### AI Disclosure
+Dalam tugas 5 ini, saya menggunakan AI untuk membantu dan menelaah error, bug, dan menulis code yang dirasa redundent. Lebih dari itu, pengerjaan dilakukan secara mandiri dengan dibantu petunjuk tutorial dan materi di dalam kelas.
+
+### bagian yang dibantu AI
+* menelaah error dan bug yang terjadi ketika melakukan `runserver` atau `migrate`
+* membantu menulis code yang redundent seperti `script`
+
+### Analisi keterbatasan AI dan perbaikan manual
+* Kelemahan AI dirasa ketika mencoba menulis code yang redundent, karena AI tidak terbiasa menulis code yang panjang atau robust, kinerja AI harus terus dipantau agar dapat menghasilkan hasil yang diinginkan sehingga kompetensi mandiri juga tetap diperlukan.
