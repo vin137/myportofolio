@@ -136,10 +136,12 @@ def toggle_star_experience(request, experience_id):
 
 def show_award(request):
     title_query = request.GET.get("title", "").strip()
+    is_editor = request.user.is_authenticated and request.user.groups.filter(name='Editor').exists()
 
     context = {
         "name": "Vincent",
         "title_query": title_query,
+        "is_editor": is_editor,
         "form":AwardForm(),
     }
     return render(request, "award.html", context)
