@@ -177,15 +177,19 @@ Dalam tugas 5 ini, saya menggunakan AI untuk membantu dan menelaah error, bug, d
 
 ### 1.
 > **pertanyaan:** Jelaskan apa yang dimaksud dengan REST dan mengapa mengembalikan JSON saja belum cukup untuk menyebut sebuah API sebagai RESTful! Jelaskan pula perbedaan PUT dan PATCH beserta contoh kapan masing-masing sebaiknya digunakan!
+REST diperlukan karena JSON hanyalah format data sedangkan REST adalah arsitektur resource yang diidentifikasi lewat URL dan bersifat stateless. Endpoint yang selalu mengmbalikan OK, tidak cukup untuk disebut RESTful. PUT mengganti seluruh resource, sedangkan PATCH hanya mengubah field yang dikirim.
 
 ### 2.
 > **pertanyaan:** Jelaskan peran serializer pada Django REST Framework! Apa keuntungannya dibandingkan merakit dictionary secara manual dengan JsonResponse seperti pada Tutorial 05?
+Serializer dapat mengubah objek model menjadi data JSON dan memvalidasi serta mengubah input request menjadi data yang dapat disimpan sehingga validasi menjadi terpusat
 
 ### 3.
 > **pertanyaan:** Jelaskan perbedaan autentikasi dan otorisasi pada Django REST Framework! Mengapa hak akses harus diperiksa dengan permission class di server, bukan hanya dengan menyembunyikan tombol di template?
+Autentikasi adalah proses untuk menentukan identitas user sedangkan otorisasi adalah proses untuk menentukan apa yang npleh dilakukan oleh user. Permission harus dilakukan server karena hanya pemeriksaan dari server yang dapat dipercaya.
 
 ### 4.
 > **pertanyaan:** Jelaskan mengapa permintaan yang mengubah data tetap memerlukan token CSRF ketika API memakai SessionAuthentication! Mengapa test yang memakai force_authenticate tidak cukup untuk membuktikan bahwa perlindungan CSRF berjalan?
+SessionAuthentication mengandalkan session cookies yang otomatis dikirim oleh browser. Tanpa token csrf, request yang dipicu oleh situs lain yang berpotensi berbahaya dapat membuat browser korban yang sedang login mengubah atau menghapus data. force_authenticate mengisi request.user langsung dan melewati proses autentikasi, termasuk pemeriksaan CSRF, sehingga tidak membuktikan perlindungan berjalan.
 
 ### AI Disclosure
 Dalam tugas 6 ini, saya menggunakan AI untuk membantu dan menelaah error, bug, dan menulis code yang dirasa redundent. Lebih dari itu, pengerjaan dilakukan secara mandiri dengan dibantu petunjuk tutorial dan materi di dalam kelas.
