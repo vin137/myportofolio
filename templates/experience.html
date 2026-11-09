@@ -4,7 +4,7 @@
     <section class="experience-section" id="experience">
         <div class="container">
             <p class="section-kicker">Perjalanan saya sejauh ini</p>
-            
+
             <div class="project-header">
                 <h1>Experience</h1>
                 {% if user.is_superuser %}
@@ -12,7 +12,6 @@
                     <span aria-hidden="true">+</span> Tambah experience
                 </button>
                 {% endif %}
-                
             </div>
 
             <form id="project-search-form" class="project-search" onsubmit="event.preventDefault();">
@@ -26,7 +25,6 @@
 
             <p id="loading" class="empty-state hide">Sedang memuat data...</p>
             <p id="error" class="empty-state hide">Gagal memuat data. Silakan coba lagi nanti.</p>
-            
             <p id="empty" class="empty-state hide">Belum ada pengalaman yang ditambahkan.</p>
 
             <div id="grid" class="experience-grid hide"></div>
@@ -38,11 +36,55 @@
     {% include "components/experience_form_modal.html" %}
 {% endif %}
 
+{% if user.is_superuser or is_editor %}
+<dialog id="edit-experience-dialog" class="edit-dialog">
+    <form id="edit-experience-form" class="project-form" method="dialog">
+        <h2>Edit Experience</h2>
+        <div class="form-group">
+            <label for="edit-exp-title">Nama Experience</label>
+            <input type="text" id="edit-exp-title" name="title" maxlength="255" required>
+        </div>
+        <div class="form-group">
+            <label for="edit-exp-description">Deskripsi Experience</label>
+            <textarea id="edit-exp-description" name="description" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="edit-exp-category">Kategori Experience</label>
+            <select id="edit-exp-category" name="category" class="form-control">
+                <option value="internship">Internship</option>
+                <option value="research">Research</option>
+                <option value="volunteer">Volunteer</option>
+                <option value="part-time">Part-Time</option>
+                <option value="full-time">Full-Time</option>
+                <option value="freelance">Freelance</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="edit-exp-thumbnail">Thumbnail</label>
+            <input type="url" id="edit-exp-thumbnail" name="thumbnail" placeholder="https://example.com">
+        </div>
+        <div class="form-group">
+            <label for="edit-exp-started">Tanggal Mulai</label>
+            <input type="date" id="edit-exp-started" name="started_at">
+        </div>
+        <div class="form-group">
+            <label for="edit-exp-ended">Tanggal Selesai</label>
+            <input type="date" id="edit-exp-ended" name="ended_at">
+        </div>
+        <button type="submit" class="button">Simpan</button>
+        <button type="button" class="button button-secondary" id="edit-experience-cancel">Batal</button>
+    </form>
+</dialog>
+<style>
+    .edit-dialog { max-width: 32rem; width: 90%; padding: 1.5rem; border-radius: 12px; }
+    .edit-dialog::backdrop { background: rgba(0, 0, 0, .5); }
+</style>
+{% endif %}
+
 <script>
     const BASE_EXPERIENCES_ENDPOINT = "{% url 'api:experience-list' %}";
     const DETAIL_EXPERIENCE_ENDPOINT = "{% url 'api:experience-detail' '00000000-0000-0000-0000-000000000000' %}";
     const STAR_EXPERIENCE_ENDPOINT = "{% url 'api:experience-star' '00000000-0000-0000-0000-000000000000' %}";
-    const EDIT_EXPERIENCE_PAGE = "{% url 'main:edit_experience' '00000000-0000-0000-0000-000000000000' %}";
     const LOGIN_URL = "{% url 'main:login' %}";
     const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
     const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
@@ -55,6 +97,10 @@
     const searchForm = document.getElementById('project-search-form');
     const searchInput = document.getElementById('search-input');
     const experienceForm = document.getElementById('experience-form');
+    const editDialog = document.getElementById('edit-experience-dialog');
+    const editForm = document.getElementById('edit-experience-form');
+    const experiencesById = new Map();
+    let editingId = null;
     let experiencesAbortController;
     let searchDebounceTimer;
 
@@ -87,7 +133,8 @@
         const article = document.createElement('article');
         article.className = 'experience-card';
         const editHtml = (IS_SUPERUSER || IS_EDITOR)
-            ? `<a href="${escapeHtml(experienceEndpoint(EDIT_EXPERIENCE_PAGE, experience.id))}" class="button button-secondary">Edit</a>` : '';
+            ? `<button type="button" class="button button-secondary" data-action="edit"
+                data-id="${escapeHtml(experience.id)}">Edit</button>` : '';
         const deleteHtml = IS_SUPERUSER
             ? `<button type="button" class="button button-danger" data-action="delete"
                 data-id="${escapeHtml(experience.id)}">Hapus</button>` : '';
@@ -126,6 +173,8 @@
             });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const experiences = await response.json();
+            experiencesById.clear();
+            experiences.forEach(item => experiencesById.set(item.id, item));
             gridContainer.replaceChildren(...experiences.map(buildExperienceCardElement));
             displayPageSection({ showGrid: experiences.length > 0, showEmpty: experiences.length === 0 });
         } catch (error) {
@@ -161,6 +210,17 @@
         return value ? `${value}T00:00:00Z` : null;
     }
 
+    function buildPayload(fields) {
+        return {
+            title: fields.get('title'),
+            description: fields.get('description'),
+            category: fields.get('category'),
+            thumbnail: fields.get('thumbnail') || null,
+            started_at: dateToIso(fields.get('started_at')),
+            ended_at: dateToIso(fields.get('ended_at')),
+        };
+    }
+
     function closeExperienceModal() {
         const modal = document.getElementById('add-experience-modal');
         if (modal && modal.hidePopover) modal.hidePopover();
@@ -171,16 +231,8 @@
         const button = experienceForm.querySelector('button[type="submit"]');
         button.disabled = true;
         try {
-            const fields = new FormData(experienceForm);
-            const payload = {
-                title: fields.get('title'),
-                description: fields.get('description'),
-                category: fields.get('category'),
-                thumbnail: fields.get('thumbnail') || null,
-                started_at: dateToIso(fields.get('started_at')),
-                ended_at: dateToIso(fields.get('ended_at')),
-            };
-            await writeExperience(BASE_EXPERIENCES_ENDPOINT, 'POST', payload);
+            await writeExperience(BASE_EXPERIENCES_ENDPOINT, 'POST',
+                buildPayload(new FormData(experienceForm)));
             experienceForm.reset();
             closeExperienceModal();
             showToast('Berhasil', 'Experience baru berhasil ditambahkan!', 'success');
@@ -194,10 +246,52 @@
 
     if (experienceForm) experienceForm.addEventListener('submit', addExperience);
 
+    // ----- Edit lewat PATCH -----
+    function openEditDialog(id) {
+        const item = experiencesById.get(id);
+        if (!item || !editDialog) return;
+        editingId = id;
+        const set = (name, value) => { editForm.querySelector(`[name="${name}"]`).value = value ?? ''; };
+        set('title', item.title);
+        set('description', item.description);
+        set('category', item.category);
+        set('thumbnail', item.thumbnail);
+        set('started_at', item.started_at ? item.started_at.slice(0, 10) : '');
+        set('ended_at', item.ended_at ? item.ended_at.slice(0, 10) : '');
+        editDialog.showModal();
+    }
+
+    async function editExperience(event) {
+        event.preventDefault();
+        const button = editForm.querySelector('button[type="submit"]');
+        button.disabled = true;
+        try {
+            await writeExperience(experienceEndpoint(DETAIL_EXPERIENCE_ENDPOINT, editingId),
+                'PATCH', buildPayload(new FormData(editForm)));
+            editDialog.close();
+            showToast('Berhasil', 'Experience berhasil diperbarui!', 'success');
+            await fetchExperiences(searchInput.value.trim());
+        } catch (error) {
+            showToast('Gagal memperbarui experience', error.message, 'error');
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    if (editForm) {
+        editForm.addEventListener('submit', editExperience);
+        document.getElementById('edit-experience-cancel')
+            .addEventListener('click', () => editDialog.close());
+    }
+
     gridContainer.addEventListener('click', async function(event) {
         const button = event.target.closest('button[data-action]');
         if (!button || button.disabled) return;
         const action = button.dataset.action;
+        if (action === 'edit') {
+            openEditDialog(button.dataset.id);
+            return;
+        }
         if (action === 'delete' && !window.confirm('Hapus experience ini?')) return;
         button.disabled = true;
         try {

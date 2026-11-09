@@ -10,12 +10,12 @@
                 <div class="project-header">
                     <h1>Awards</h1>
                     {% if user.is_superuser %}
-                    <a href="{% url 'main:create_award' %}" class="button project-add-button " popovertarget="add-project-modal">
+                    <button type="button" class="button project-add-button" popovertarget="add-award-modal">
                         <span aria-hidden="true">+</span> Tambah Award
-                    </a>
+                    </button>
                     {% endif %}
                 </div>
-                
+
                 <form id="project-search-form" class="project-search">
                     <input type="search"
                            id="search-input"
@@ -27,69 +27,55 @@
                     <button type="submit" class="button">Cari</button>
                 </form>
 
-                <!-- Loading State -->
                 <div id="loading" class="empty-state hide">
                     <p>Memuat awards...</p>
                 </div>
-
-                <!-- Error State -->
                 <div id="error" class="empty-state hide">
                     <p>Gagal memuat data awards. Silakan coba lagi.</p>
                 </div>
-
-                <!-- Empty State -->
                 <div id="empty" class="empty-state hide">
                     <p>Belum ada award yang ditambahkan atau ditemukan.</p>
                 </div>
 
-                <!-- Project Grid -->
                 <div id="grid" class="experience-grid project-grid hide"></div>
-
-                <div class="experience-grid project-grid">
-                    {% for award in awards %}
-                        <article class="experience-card">
-                            <span class="experience-category">
-                                {{ award.date_given|date:"F Y" }}
-                            </span>
-                            <h2>{{ award.title }}</h2>
-                            <p class="experience-description">{{ award.description }}</p>
-                            
-                            <div class="project-card-actions">
-                                <a href="{% url 'main:edit_award' award.id %}" class="project-actions">
-                                    Edit Award
-                                </a>
-                                <div class="project-actions">
-                                    {% include "components/award_star.html" with award=award %}
-                                    {% if user.is_superuser %}
-                                        {% include "components/award_delete_modal.html" with award=award %}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </article>
-                    {% empty %}
-                        {% if title_query %}
-                            <p class="empty-state">Tidak ada award dengan nama tersebut.</p>
-                        {% else %}
-                            <p class="empty-state">Belum ada award yang ditambahkan.</p>
-                        {% endif %}
-                    {% endfor %}
-                </div>
             </div>
         </section>
-        <button class="button button-secondary" onclick="showToast('Notifikasi Sistem', 'Project berhasil dimuat dengan baik!', 'success')">
-            Test Toast Notifikasi
-        </button>
     </main>
+
 {% if user.is_superuser %}
     {% include "components/award_form_modal.html" %}
 {% endif %}
 
+{% if user.is_superuser or is_editor %}
+<dialog id="edit-award-dialog" class="edit-dialog">
+    <form id="edit-award-form" class="project-form" method="dialog">
+        <h2>Edit Award</h2>
+        <div class="form-group">
+            <label for="edit-award-title">Nama Award</label>
+            <input type="text" id="edit-award-title" name="title" maxlength="255" required>
+        </div>
+        <div class="form-group">
+            <label for="edit-award-description">Deskripsi Award</label>
+            <textarea id="edit-award-description" name="description" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="edit-award-date">Tanggal Award</label>
+            <input type="date" id="edit-award-date" name="date_given">
+        </div>
+        <button type="submit" class="button">Simpan</button>
+        <button type="button" class="button button-secondary" id="edit-award-cancel">Batal</button>
+    </form>
+</dialog>
+<style>
+    .edit-dialog { max-width: 32rem; width: 90%; padding: 1.5rem; border-radius: 12px; }
+    .edit-dialog::backdrop { background: rgba(0, 0, 0, .5); }
+</style>
+{% endif %}
 
-    <script>
+<script>
     const BASE_AWARDS_ENDPOINT = "{% url 'api:award-list' %}";
     const DETAIL_AWARD_ENDPOINT = "{% url 'api:award-detail' '00000000-0000-0000-0000-000000000000' %}";
     const STAR_AWARD_ENDPOINT = "{% url 'api:award-star' '00000000-0000-0000-0000-000000000000' %}";
-    const EDIT_AWARD_PAGE = "{% url 'main:edit_award' '00000000-0000-0000-0000-000000000000' %}";
     const LOGIN_URL = "{% url 'main:login' %}";
     const IS_SUPERUSER = "{{ user.is_superuser|yesno:'true,false' }}" === "true";
     const IS_EDITOR = "{{ is_editor|yesno:'true,false' }}" === "true";
@@ -102,6 +88,10 @@
     const searchForm = document.getElementById('project-search-form');
     const searchInput = document.getElementById('search-input');
     const awardForm = document.getElementById('award-form');
+    const editDialog = document.getElementById('edit-award-dialog');
+    const editForm = document.getElementById('edit-award-form');
+    const awardsById = new Map();
+    let editingId = null;
     let awardsAbortController;
     let searchDebounceTimer;
 
@@ -134,7 +124,8 @@
         const article = document.createElement('article');
         article.className = 'experience-card';
         const editHtml = (IS_SUPERUSER || IS_EDITOR)
-            ? `<a href="${escapeHtml(awardEndpoint(EDIT_AWARD_PAGE, award.id))}" class="button button-secondary">Edit</a>` : '';
+            ? `<button type="button" class="button button-secondary" data-action="edit"
+                data-id="${escapeHtml(award.id)}">Edit</button>` : '';
         const deleteHtml = IS_SUPERUSER
             ? `<button type="button" class="button button-danger" data-action="delete"
                 data-id="${escapeHtml(award.id)}">Hapus</button>` : '';
@@ -172,6 +163,8 @@
             });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const awards = await response.json();
+            awardsById.clear();
+            awards.forEach(award => awardsById.set(award.id, award));
             gridContainer.replaceChildren(...awards.map(buildAwardCardElement));
             displayPageSection({ showGrid: awards.length > 0, showEmpty: awards.length === 0 });
         } catch (error) {
@@ -232,10 +225,53 @@
 
     if (awardForm) awardForm.addEventListener('submit', addAward);
 
+    // ----- Edit lewat PATCH -----
+    function openEditDialog(id) {
+        const award = awardsById.get(id);
+        if (!award || !editDialog) return;
+        editingId = id;
+        editForm.querySelector('[name="title"]').value = award.title;
+        editForm.querySelector('[name="description"]').value = award.description;
+        editForm.querySelector('[name="date_given"]').value = award.date_given || '';
+        editDialog.showModal();
+    }
+
+    async function editAward(event) {
+        event.preventDefault();
+        const button = editForm.querySelector('button[type="submit"]');
+        button.disabled = true;
+        try {
+            const fields = new FormData(editForm);
+            const payload = {
+                title: fields.get('title'),
+                description: fields.get('description'),
+                date_given: fields.get('date_given') || null,
+            };
+            await writeAward(awardEndpoint(DETAIL_AWARD_ENDPOINT, editingId), 'PATCH', payload);
+            editDialog.close();
+            showToast('Berhasil', 'Award berhasil diperbarui!', 'success');
+            await fetchAwards(searchInput.value.trim());
+        } catch (error) {
+            showToast('Gagal memperbarui award', error.message, 'error');
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    if (editForm) {
+        editForm.addEventListener('submit', editAward);
+        document.getElementById('edit-award-cancel')
+            .addEventListener('click', () => editDialog.close());
+    }
+
     gridContainer.addEventListener('click', async function(event) {
         const button = event.target.closest('button[data-action]');
         if (!button || button.disabled) return;
         const action = button.dataset.action;
+        if (action === 'edit') {
+            openEditDialog(button.dataset.id);
+            return;
+        }
         if (action === 'delete' && !window.confirm('Yakin ingin menghapus award ini?')) return;
         button.disabled = true;
         try {
