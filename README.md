@@ -172,7 +172,26 @@ Dalam tugas 5 ini, saya menggunakan AI untuk membantu dan menelaah error, bug, d
 
 ### bagian yang dibantu AI
 * menelaah error dan bug yang terjadi ketika melakukan `runserver` atau `migrate`
-* membantu menulis code yang redundent seperti `script`
+
+### Tugas 6
+
+### 1.
+> **pertanyaan:** Jelaskan apa yang dimaksud dengan REST dan mengapa mengembalikan JSON saja belum cukup untuk menyebut sebuah API sebagai RESTful! Jelaskan pula perbedaan PUT dan PATCH beserta contoh kapan masing-masing sebaiknya digunakan!
+
+### 2.
+> **pertanyaan:** Jelaskan peran serializer pada Django REST Framework! Apa keuntungannya dibandingkan merakit dictionary secara manual dengan JsonResponse seperti pada Tutorial 05?
+
+### 3.
+> **pertanyaan:** Jelaskan perbedaan autentikasi dan otorisasi pada Django REST Framework! Mengapa hak akses harus diperiksa dengan permission class di server, bukan hanya dengan menyembunyikan tombol di template?
+
+### 4.
+> **pertanyaan:** Jelaskan mengapa permintaan yang mengubah data tetap memerlukan token CSRF ketika API memakai SessionAuthentication! Mengapa test yang memakai force_authenticate tidak cukup untuk membuktikan bahwa perlindungan CSRF berjalan?
+
+### AI Disclosure
+Dalam tugas 6 ini, saya menggunakan AI untuk membantu dan menelaah error, bug, dan menulis code yang dirasa redundent. Lebih dari itu, pengerjaan dilakukan secara mandiri dengan dibantu petunjuk tutorial dan materi di dalam kelas.
+
+### bagian yang dibantu AI
+* menelaah error dan bug yang terjadi ketika melakukan `runserver` atau `migrate`
 
 ### Analisi keterbatasan AI dan perbaikan manual
-* Kelemahan AI dirasa ketika mencoba menulis code yang redundent, karena AI tidak terbiasa menulis code yang panjang atau robust, kinerja AI harus terus dipantau agar dapat menghasilkan hasil yang diinginkan sehingga kompetensi mandiri juga tetap diperlukan.
+* Kelemahan AI dirasa ketika menulis code yang berskaa besar karena kehilangan context tugas sehingga perlu diperbaiki secara manual
