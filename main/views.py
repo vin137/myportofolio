@@ -60,7 +60,7 @@ def show_main(request):
     }
     return render(request, "index.html", context)
 
-
+@ensure_csrf_cookie
 def show_experience(request):
     is_editor = request.user.is_authenticated and request.user.groups.filter(name='Editor').exists()
     
@@ -134,6 +134,7 @@ def toggle_star_experience(request, experience_id):
 
     return redirect("main:show_experience")
 
+@ensure_csrf_cookie
 def show_award(request):
     title_query = request.GET.get("title", "").strip()
     is_editor = request.user.is_authenticated and request.user.groups.filter(name='Editor').exists()
